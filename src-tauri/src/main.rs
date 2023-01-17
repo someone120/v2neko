@@ -3,14 +3,23 @@
     windows_subsystem = "windows"
 )]
 
+use proxy::ProxyTrait;
 use rusqlite::Connection;
+use serde::{Deserialize, Serialize};
 mod depositor;
+mod error;
+mod poll;
 mod proxy;
 mod v2ray;
-mod error;
-mod ws;
 
 pub static mut DATABSE: Option<Connection> = None;
+static mut PROXY: Option<Box<dyn ProxyTrait>> = None;
+
+#[derive(Debug, Deserialize, Serialize)]
+struct Msg {
+    code: i32,
+    msg: String,
+}
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -33,12 +42,24 @@ fn get_proxies_list() -> Vec<proxy::Proxy> {
 fn push_v2ray_proxy() {}
 
 #[tauri::command]
-fn choice_proxy(proxy_id: i32)->String{
+fn choice_proxy(proxy_id: i32) -> Msg {
     let proxy;
     unsafe {
         proxy = depositor::get_proxy_by_id(&(&DATABSE).as_ref().unwrap(), proxy_id);
+        let core = proxy::use_proxy(&proxy);
+        if core.is_ok() {
+            PROXY = Some(Box::new(core.ok().unwrap()));
+            Msg {
+                code: 0,
+                msg: "success".to_owned(),
+            }
+        } else {
+            Msg {
+                code: -1,
+                msg: core.err().unwrap().msg,
+            }
+        }
     }
-    proxy::use_proxy(&proxy)
 }
 
 #[tokio::main]
