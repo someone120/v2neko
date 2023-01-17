@@ -3,12 +3,11 @@
     windows_subsystem = "windows"
 )]
 
-use proxy::ProxyTrait;
+use proxy::{ProxyTrait, Proxy};
 use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 mod depositor;
 mod error;
-mod poll;
 mod proxy;
 mod v2ray;
 
@@ -39,10 +38,28 @@ fn get_proxies_list() -> Vec<proxy::Proxy> {
 }
 
 #[tauri::command]
-fn push_v2ray_proxy() {}
+fn push_v2ray_proxy(name:String,proxy_type:String) {
+    unsafe {
+        match &DATABSE {
+            Some(i) => {
+                let id = uuid::Uuid::new_v4().to_string();
+                let proxy = Proxy{
+                    proxy_name:name,
+                    proxy_type:proxy_type,
+                    proxy_config_path:"~/.config/v2neko/connections/".to_owned(),
+                    proxy_delay:-1,
+                    proxy_download:0,
+                    proxy_upload:0,
+                    proxy_id:id,
+                };
+                depositor::push_proxy(i, &proxy)},
+            None => panic!("Haven't connect to database"),
+        }
+    }
+}
 
 #[tauri::command]
-fn choice_proxy(proxy_id: i32) -> Msg {
+fn choice_proxy(proxy_id: &str) -> Msg {
     let proxy;
     unsafe {
         proxy = depositor::get_proxy_by_id(&(&DATABSE).as_ref().unwrap(), proxy_id);
@@ -62,6 +79,16 @@ fn choice_proxy(proxy_id: i32) -> Msg {
     }
 }
 
+#[tauri::command]
+fn poll_output() -> Option<String> {
+    unsafe {
+        match &mut PROXY {
+            Some(i) => i.poll_output(),
+            None=>None
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() {
     unsafe {
@@ -72,7 +99,8 @@ async fn main() {
             greet,
             get_proxies_list,
             push_v2ray_proxy,
-            choice_proxy
+            choice_proxy,
+            poll_output
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -2,32 +2,9 @@ use rusqlite::{params, Connection};
 use std::fs;
 use crate::proxy::Proxy;
 
-
-/// 将字节数转换为更适合人类阅读的形式
-/// make the bytes more readable.
-/// # Examples
-///
-/// ```rust
-/// let a = 1024;
-/// assert_eq!(byte_to_human_readable(&a),"1KB");
-/// ```
-fn _byte_to_human_readable(byte_count: &i64) -> String {
-    let unit = ["B", "KB", "MB", "GB", "TB", "PB"];
-    let mut resule = String::new();
-    let mut j = byte_count.clone() as f64;
-    for i in unit.iter() {
-        j /= 1024.0;
-        if j < 1.0 {
-            resule = format!("{:.2} {}", j * 1024.0, i);
-            break;
-        }
-    }
-    resule
-}
-
 /// 通过id读取代理。
 /// read proxy by id.
-pub fn get_proxy_by_id(conn: &Connection, proxy_id: i32) -> Proxy {
+pub fn get_proxy_by_id(conn: &Connection, proxy_id: &str) -> Proxy {
     let mut stmt = conn
         .prepare(r#"SELECT * FROM proxies where proxy_id=?"#)
         .unwrap();
@@ -49,7 +26,7 @@ pub fn get_proxy_by_id(conn: &Connection, proxy_id: i32) -> Proxy {
 
 /// 向数据库中加入代理。
 /// add a new proxy to the database.
-pub fn _push_proxy(conn: &Connection, proxy: &Proxy) {
+pub fn push_proxy(conn: &Connection, proxy: &Proxy) {
     conn.execute("INSTER INTO proxies(proxy_id,proxy_name,proxy_type,proxy_upload,proxy_download,proxy_delay,proxy_config_path) 
     values (?,?,?,?,?,?,?)",params![proxy.proxy_id,proxy.proxy_name,proxy.proxy_type,proxy.proxy_upload,proxy.proxy_delay,proxy.proxy_config_path]).unwrap();
 }
@@ -98,7 +75,7 @@ fn init(conn: &mut Connection) {
         if pair.get(0) == Ok(0) {
             conn.execute(
                 "CREATE TABLE proxies(
-                proxy_id int PRIMARY KEY NOT NULL,
+                proxy_id varchar(36) PRIMARY KEY NOT NULL,
                 proxy_name varchar(255) NOT NULL,
                 proxy_type varchar(255) NOT NULL,
                 proxy_upload int,
@@ -115,28 +92,3 @@ fn init(conn: &mut Connection) {
     for _ in proxy_iter {}
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn byte_to_human_readable_test_kb() {
-        let a = 2049;
-        assert_eq!(_byte_to_human_readable(&a), "2.00 KB");
-    }
-    #[test]
-    fn byte_to_human_readable_test_mb() {
-        let a = 2048 * 1024;
-        assert_eq!(_byte_to_human_readable(&a), "2.00 MB");
-    }
-
-    #[test]
-    fn byte_to_human_readable_test_gb() {
-        let a = 2048 * 1024 * 1024;
-        assert_eq!(_byte_to_human_readable(&a), "2.00 GB");
-    }
-    #[test]
-    fn byte_to_human_readable_test_tb() {
-        let a = 2048 * 1024 * 1024 * 1024;
-        assert_eq!(_byte_to_human_readable(&a), "2.00 TB");
-    }
-}

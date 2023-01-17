@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Proxy {
-    pub proxy_id: i32,
+    pub proxy_id: String,
     pub proxy_name: String,
     pub proxy_type: String,
     pub proxy_upload: i64,
