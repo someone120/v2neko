@@ -1,6 +1,7 @@
+use crate::proxy::Proxy;
+use directories::BaseDirs;
 use rusqlite::{params, Connection};
 use std::fs;
-use crate::proxy::Proxy;
 
 /// 通过id读取代理。
 /// read proxy by id.
@@ -59,15 +60,16 @@ pub fn get_proxy_list(connection: &Connection) -> Vec<Proxy> {
 /// 获取数据库的连接。将会在数据库不存在是建立数据库
 /// get the connection from the database. Creates a new database when the database is not initialized.
 pub fn init_database() -> Connection {
-    fs::create_dir_all("~/.config/v2neko").unwrap();
-    let mut conn = rusqlite::Connection::open("~/.config/v2neko/proxyies.sqlite").unwrap();
-    init(&mut conn);
+    let proj_dirs = BaseDirs::new().unwrap().config_dir().join("v2neko");
+    fs::create_dir_all(&proj_dirs).unwrap();
+    let mut conn = rusqlite::Connection::open(proj_dirs.join("proxyies.sqlite")).unwrap();
+    init_proxys(&mut conn);
     conn
 }
 
 /// 初始化数据库
 /// init the database.
-fn init(conn: &mut Connection) {
+fn init_proxys(conn: &mut Connection) {
     let mut stmt = conn
         .prepare(r#"SELECT count(*) FROM sqlite_master WHERE type="table" AND name = "proxies""#)
         .unwrap();
@@ -91,4 +93,3 @@ fn init(conn: &mut Connection) {
     });
     for _ in proxy_iter {}
 }
-
