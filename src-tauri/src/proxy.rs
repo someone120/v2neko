@@ -1,6 +1,9 @@
-use std::fs;
 
-use crate::{error::{CoreConfigError, ProxySwitchError}, v2ray};
+
+use crate::{
+    error::{CoreConfigError, ProxySwitchError},
+    v2ray, files,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -20,18 +23,29 @@ pub trait ProxyTrait {
     fn stop(&mut self);
     fn check_version(&self) -> Result<String, CoreConfigError>;
     fn poll_output(&mut self) -> Option<String>;
+    fn generate_config(&self) -> Option<String>;
 }
 
-pub fn use_proxy(proxy: &Proxy) -> Result<impl ProxyTrait,ProxySwitchError> {
-    match fs::copy("~/.config/config.json", proxy.proxy_config_path.as_str()) {
-        Ok(_) => match proxy.proxy_type.as_str() {
-            "v2ray" => {
-                let mut a = v2ray::core::init("/usr/bin/xray");
-                a.restart();
-                Ok(a)
+pub fn use_proxy(proxy: &Proxy) -> Result<impl ProxyTrait, ProxySwitchError> {
+    match proxy.proxy_type.as_str() {
+        "v2ray" => {
+            let mut a = v2ray::core::init("/usr/bin/xray");
+            if let Err(i) = files::write(
+                "connection.json",
+                &a.generate_config().unwrap(),
+            ) {
+                return Err(ProxySwitchError {
+                    msg: format!(
+                        "在切换代理时遇到了错误：写入配置文件时错误：{}",
+                        i.to_string()
+                    ),
+                });
             }
-            _ => Err(ProxySwitchError{msg:format!("在切换代理时遇到了错误：不支持的类型：{}", proxy.proxy_type)}),
-        },
-        Err(i) => Err(ProxySwitchError{msg:format!("在切换代理时遇到了错误：{}", i.to_string())}),
+            a.restart();
+            Ok(a)
+        }
+        _ => Err(ProxySwitchError {
+            msg: format!("在切换代理时遇到了错误：不支持的类型：{}", proxy.proxy_type),
+        }),
     }
 }
