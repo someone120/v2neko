@@ -10,6 +10,8 @@ mod depositor;
 mod error;
 mod proxy;
 mod v2ray;
+mod config;
+mod files;
 
 pub static mut DATABSE: Option<Connection> = None;
 static mut PROXY: Option<Box<dyn ProxyTrait>> = None;
