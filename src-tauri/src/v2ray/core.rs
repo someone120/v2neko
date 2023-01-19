@@ -1,9 +1,10 @@
+use crate::{error::CoreConfigError, proxy::ProxyTrait};
 use std::{
     io::{BufReader, Read},
     process::{Child, Command, Stdio},
 };
 
-use crate::{error::CoreConfigError, proxy::ProxyTrait};
+use super::generate::generate;
 
 pub struct Core {
     path: String,
@@ -67,6 +68,10 @@ impl ProxyTrait for Core {
             Ok(_) => Some(String::from_utf8(vec).unwrap()),
             Err(_) => None,
         }
+    }
+
+    fn generate_config(&self) -> Option<String> {
+        Some(generate(""))
     }
 }
 
