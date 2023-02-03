@@ -2,7 +2,7 @@
 
 use crate::{
     error::{CoreConfigError, ProxySwitchError},
-    v2ray, files,
+    vmess, files,
 };
 use serde::{Deserialize, Serialize};
 
@@ -15,6 +15,7 @@ pub struct Proxy {
     pub proxy_download: i64,
     pub proxy_config_path: String,
     pub proxy_delay: i32,
+    pub proxy_group:String
 }
 
 pub trait ProxyTrait {
@@ -29,7 +30,7 @@ pub trait ProxyTrait {
 pub fn use_proxy(proxy: &Proxy) -> Result<impl ProxyTrait, ProxySwitchError> {
     match proxy.proxy_type.as_str() {
         "v2ray" => {
-            let mut a = v2ray::core::init("/usr/bin/xray");
+            let mut a = vmess::core::init("/usr/bin/xray");
             if let Err(i) = files::write(
                 "connection.json",
                 &a.generate_config().unwrap(),

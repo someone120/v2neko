@@ -3,15 +3,15 @@
     windows_subsystem = "windows"
 )]
 
-use proxy::{ProxyTrait, Proxy};
+use proxy::{Proxy, ProxyTrait};
 use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
+mod config;
 mod depositor;
 mod error;
-mod proxy;
-mod v2ray;
-mod config;
 mod files;
+mod proxy;
+mod vmess;
 
 pub static mut DATABSE: Option<Connection> = None;
 static mut PROXY: Option<Box<dyn ProxyTrait>> = None;
@@ -40,21 +40,23 @@ fn get_proxies_list() -> Vec<proxy::Proxy> {
 }
 
 #[tauri::command]
-fn push_v2ray_proxy(name:String,proxy_type:String) {
+fn push_v2ray_proxy(name: String, proxy_type: String) {
     unsafe {
         match &DATABSE {
             Some(i) => {
                 let id = uuid::Uuid::new_v4().to_string();
-                let proxy = Proxy{
-                    proxy_name:name,
-                    proxy_type:proxy_type,
-                    proxy_config_path:"~/.config/v2neko/connections/".to_owned(),
-                    proxy_delay:-1,
-                    proxy_download:0,
-                    proxy_upload:0,
-                    proxy_id:id,
+                let proxy = Proxy {
+                    proxy_name: name,
+                    proxy_type: proxy_type,
+                    proxy_config_path: "~/.config/v2neko/connections/".to_owned(),
+                    proxy_delay: -1,
+                    proxy_download: 0,
+                    proxy_upload: 0,
+                    proxy_id: id,
+                    proxy_group: "default".to_owned(),
                 };
-                depositor::push_proxy(i, &proxy)},
+                depositor::push_proxy(i, &proxy)
+            }
             None => panic!("Haven't connect to database"),
         }
     }
@@ -86,7 +88,7 @@ fn poll_output() -> Option<String> {
     unsafe {
         match &mut PROXY {
             Some(i) => i.poll_output(),
-            None=>None
+            None => None,
         }
     }
 }

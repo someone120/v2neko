@@ -20,6 +20,7 @@ tauri = { version = "1.2", features = ["shell-open"] }
 rusqlite = "0.28.0"
 tokio = { version = "1", features = ["full"] }
 directories = "4.0.1"
+base64 = "0.21.0"
 
 [dependencies.uuid]
 version = "1.2.2"

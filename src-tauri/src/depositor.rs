@@ -19,6 +19,7 @@ pub fn get_proxy_by_id(conn: &Connection, proxy_id: &str) -> Proxy {
                 proxy_download: pair.get(4).unwrap_or(0),
                 proxy_delay: pair.get(5).unwrap_or(-1),
                 proxy_config_path: pair.get(6)?,
+                proxy_group:pair.get(7)?
             })
         })
         .unwrap();
@@ -47,6 +48,7 @@ pub fn get_proxy_list(connection: &Connection) -> Vec<Proxy> {
                 proxy_download: pair.get(4).unwrap_or(0),
                 proxy_delay: pair.get(5).unwrap_or(-1),
                 proxy_config_path: pair.get(6)?,
+                proxy_group:pair.get(7)?
             })
         })
         .unwrap();
@@ -83,7 +85,8 @@ fn init_proxys(conn: &mut Connection) {
                 proxy_upload int,
                 proxy_download int,
                 proxy_delay int,
-                proxy_config varchar(65535) NOT NULL
+                proxy_config varchar(65535) NOT NULL,
+                proxy_group varchar(255),
             )",
                 [],
             )

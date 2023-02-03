@@ -71,7 +71,8 @@ impl ProxyTrait for Core {
     }
 
     fn generate_config(&self) -> Option<String> {
-        Some(generate(""))
+        let outbound = &serde_json::from_str("").unwrap();
+        Some(generate(outbound))
     }
 }
 
