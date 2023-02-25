@@ -100,3 +100,19 @@ button {
     background-color: #0f0f0f98;
   }
 }
+
+body {
+  margin: 0px auto;
+}
+html,
+#app,
+.main,
+body {
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+}
+#main {
+  background-color: #999;
+  height: 100%;
+}
