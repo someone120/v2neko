@@ -17,6 +17,7 @@
           glib
           dbus
           openssl_3
+          sqlite
         ];
 
         packages = with pkgs; [
@@ -25,6 +26,7 @@
           pkg-config
           dbus
           openssl_3
+          sqlite
           glib
           gtk3
           libsoup
