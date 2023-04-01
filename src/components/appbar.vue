@@ -13,13 +13,13 @@ const show = ref(false);
 <style scoped>
 @font-face {
   font-family: NotoSans;
-  src: url("../fonts/NotoSansSC-Medium.otf");
+  src: url("../assets/fonts/NotoSansSC-Medium.otf");
 }
 
 .appbar {
   position: relative;
   height: 64px;
-  background: #f596aa;
+  background: #F6F8FC;
 }
 
 #appbar-more {
@@ -32,7 +32,7 @@ const show = ref(false);
   left: 16px;
   top: 14px;
   font-size: 34px;
-  color: white;
+  color: #444746;
   user-select: none;
 }
 
@@ -50,7 +50,7 @@ const show = ref(false);
   font-size: 24px;
   line-height: 39px;
 
-  color: #ffffff;
+  color:#444746;
 }
 
 </style>
