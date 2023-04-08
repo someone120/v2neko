@@ -1,33 +1,37 @@
 <template>
-  <div class="activite-bar">
-    <div class="activite-item-container" v-for="i in items">
-      <span
-        :class="{
-          'material-icons-outlined': !i.choosed,
-          'material-icons': i.choosed,
-          'activite-item-unchoice': !i.choosed,
-          'activite-item-choiced': i.choosed,
-        }"
-        class="activite-item"
-        @click="click(i)"
-        >{{ i.icon }}</span
+  <div class="content-main">
+    <div class="activite-bar">
+      <div
+        class="activite-item-container"
+        :class="{ 'activite-item-choiced': i.choosed }"
+        v-for="i in items"
       >
+        <span
+          :class="{
+            'material-icons-outlined': !i.choosed,
+            'material-icons': i.choosed,
+          }"
+          class="activite-item"
+          @click="click(i)"
+          >{{ i.icon }}</span
+        >
+      </div>
     </div>
+    <div class="content"><component :is="router" /></div>
   </div>
-  <div class="content" :is="router"></div>
 </template>
 
 <script setup lang="ts">
 import { Ref, computed, ref } from "vue";
-import home from "./content/home.vue"
+import home from "./content/home.vue";
 
-let routes:{[name:string]:any} = {
-  "Home":home
-}
+let routes: { [name: string]: any } = {
+  Home: home,
+};
 
 let router = computed(() => {
-  return routes[choosing]
-})
+  return routes[choosing];
+});
 
 let choosing = "Home";
 let items: Ref<{
@@ -49,34 +53,59 @@ function click(i: { icon: string; title: string; choosed: boolean }) {
 </script>
 
 <style scoped>
+.content-main {
+  display: flex;
+  flex-direction: row;
+  position: absolute;
+  top: 64px;
+  width: 100%;
+
+  bottom: 0;
+}
+
 .activite-bar {
-  float:left;
+  float: left;
   display: flex;
   flex-direction: column;
   width: 48px;
-  height: 100%;
-  background-color: #f596aa;
+  padding-bottom: 0px;
+  /* height: 100%; */
+  background-color: #f6f8fc;
   align-items: flex-start;
   padding: 8px;
   gap: 10px;
 }
 
 .activite-item {
-  left: 8px;
+  display: block;
+  left: 16px;
   user-select: none;
-  font-size: 48px;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  font-size: 32px;
+  color: #444746;
+  margin: auto;
 }
 
 .activite-item-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 48px;
   height: 48px;
 }
 
-.activite-item-unchoice {
-  color: #A85668;
+.activite-item-choiced {
+  /* color: white; */
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 5px;
 }
 
-.activite-item-choiced {
-  color: white;
+.content {
+  border-radius: 20px;
+  float: left;
+  background-color: white;
+  width: 100%;
+  height: 100%;
 }
 </style>
